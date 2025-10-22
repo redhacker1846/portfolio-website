@@ -850,6 +850,37 @@
             margin-top: 5px;
             display: block;
         }
+        
+        /* Notification System */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--card-bg);
+            border-left: 4px solid var(--primary);
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            border-left-color: #ff3b3b;
+        }
+        
+        .notification.success {
+            border-left-color: #4CAF50;
+        }
+        
+        .notification.info {
+            border-left-color: #2196F3;
+        }
     </style>
 </head>
 <body>
@@ -857,6 +888,9 @@
     <div class="loading" id="loading">
         <div class="spinner"></div>
     </div>
+
+    <!-- Notification System -->
+    <div class="notification" id="notification"></div>
 
     <!-- Particle Background -->
     <div id="particles-js"></div>
@@ -949,7 +983,7 @@
             </div>
             <div style="text-align: center; margin-top: 40px;">
                 <!-- Fixed resume download with proper file -->
-                <a href="assets/resume.pdf" class="btn" id="downloadResume" download>
+                <a href="#" class="btn" id="downloadResume">
                     <i class="fas fa-download"></i> Download Resume
                 </a>
             </div>
@@ -1170,8 +1204,8 @@
                     <p>Saturday AI represents the future of personal assistance, combining powerful AI capabilities with an intuitive user interface that makes complex tasks simple.</p>
                     
                     <div style="margin-top: 30px;">
-                        <!-- Updated with your local file path - Live Demo button removed -->
-                        <a href="file:///C:/Users/thora/Documents/SAT.html" class="btn">View Project Details</a>
+                        <!-- Updated with your GitHub Pages link -->
+                        <a href="https://redhacker1846.github.io/sat" class="btn" target="_blank">View Project Details</a>
                     </div>
                 </div>
             </div>
@@ -1270,7 +1304,17 @@
                 document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
             );
             themeIcon.className = document.body.getAttribute('data-theme') === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+            
+            // Save theme preference to localStorage
+            localStorage.setItem('theme', document.body.getAttribute('data-theme'));
         });
+
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.setAttribute('data-theme', savedTheme);
+            themeIcon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        }
 
         // Typing Animation
         const typingText = document.getElementById('typingText');
@@ -1437,6 +1481,17 @@
             return isValid;
         }
 
+        // Notification System
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
         // Telegram Contact Form Integration
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1478,17 +1533,29 @@
             }
         });
 
-        // Download Resume
+        // Download Resume - Improved with notification
         document.getElementById('downloadResume').addEventListener('click', function(e) {
             e.preventDefault();
+            showNotification('Resume download will be available soon!', 'info');
+            
             // In a real implementation, this would download the actual resume file
-            // For demo purposes, we'll create a simple PDF
-            const link = document.createElement('a');
-            link.href = 'assets/resume.pdf';
-            link.download = 'Pratik_FullStack_Developer_Resume.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // For now, we'll just show a notification
+        });
+
+        // Initialize animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate progress bars when skills section comes into view
+            const skillsSection = document.querySelector('.skills');
+            const progressObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateProgressBars();
+                        progressObserver.unobserve(entry.target);
+                    }
+                });
+            });
+            
+            progressObserver.observe(skillsSection);
         });
     </script>
 </body>
